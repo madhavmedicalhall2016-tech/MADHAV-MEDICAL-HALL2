@@ -1,0 +1,124 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile with role-based access control (customer, admin, delivery) and personal info.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 15 },
+        "role": { "type": "string", "enum": ["customer", "admin", "delivery"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "phone", "role"]
+    },
+    "Address": {
+      "title": "Delivery Address",
+      "description": "Saved delivery address of a customer in Chanmana, Baheri or surrounding villages.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 15 },
+        "street": { "type": "string", "maxLength": 200 },
+        "locality": { "type": "string", "maxLength": 100 },
+        "landmark": { "type": "string", "maxLength": 100 },
+        "pinCode": { "type": "string", "maxLength": 6 },
+        "isDefault": { "type": "boolean" }
+      },
+      "required": ["id", "name", "phone", "street", "locality", "pinCode"]
+    },
+    "Medicine": {
+      "title": "Medicine Catalog Item",
+      "description": "Medicine product item with price, stock count, and prescription requirements.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "nameHi": { "type": "string", "maxLength": 150 },
+        "brand": { "type": "string", "maxLength": 100 },
+        "salt": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "price": { "type": "number" },
+        "mrp": { "type": "number" },
+        "inStock": { "type": "boolean" },
+        "stockCount": { "type": "number" },
+        "requiresPrescription": { "type": "boolean" },
+        "packSize": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "brand", "salt", "category", "price", "mrp", "inStock", "requiresPrescription"]
+    },
+    "Order": {
+      "title": "Medicine Order",
+      "description": "Customer order with line items, total amount, delivery details, and live status pipeline.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerPhone": { "type": "string", "maxLength": 15 },
+        "customerEmail": { "type": "string", "maxLength": 100 },
+        "totalAmount": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "Order Placed",
+            "Under Review",
+            "Confirmed",
+            "Preparing",
+            "Out for Delivery",
+            "Delivered",
+            "Cancelled"
+          ]
+        },
+        "paymentMethod": { "type": "string", "enum": ["COD", "ONLINE_UPI", "STORE_PICKUP"] },
+        "paymentStatus": { "type": "string", "enum": ["Pending", "Paid", "Failed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "customerId", "customerName", "customerPhone", "totalAmount", "status", "paymentMethod"]
+    },
+    "Prescription": {
+      "title": "Doctor Prescription",
+      "description": "Uploaded doctor slip for Schedule H/H1 medicine verification by pharmacist.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "orderId": { "type": "string", "maxLength": 64 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "patientName": { "type": "string", "maxLength": 100 },
+        "patientAge": { "type": "string", "maxLength": 10 },
+        "doctorName": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["Pending Verification", "Verified", "Rejected"] },
+        "pharmacistNotes": { "type": "string", "maxLength": 500 },
+        "uploadedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "customerId", "imageUrl", "patientName", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Customer and staff user profile documents."
+    },
+    "/users/{userId}/addresses/{addressId}": {
+      "schema": "Address",
+      "description": "Customer saved delivery addresses."
+    },
+    "/medicines/{medicineId}": {
+      "schema": "Medicine",
+      "description": "Pharmacy medicine inventory managed by pharmacist admin."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer medicine orders with live status tracking."
+    },
+    "/prescriptions/{prescriptionId}": {
+      "schema": "Prescription",
+      "description": "Uploaded prescriptions requiring registered pharmacist verification."
+    }
+  }
+}

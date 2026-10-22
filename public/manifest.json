@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "MADHAV MEDICAL HALL",
+  "short_name": "Madhav Med",
+  "description": "Online pharmacy and medicine delivery in Chanmana, Baheri, Darbhanga, Bihar. Call: 9122260360",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#047857",
+  "categories": ["medical", "shopping", "health"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

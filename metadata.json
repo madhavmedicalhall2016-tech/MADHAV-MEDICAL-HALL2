@@ -1,0 +1,6 @@
+{
+  "name": "Madhav Medical Hall",
+  "description": "Madhav Medical Hall - Online pharmacy ordering, prescription upload, and medicine delivery in Chanmana, Baheri, Darbhanga, Bihar. Call: 9122260360",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

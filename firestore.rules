@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Admin role check: checks admins collection or predefined store manager
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'madhavmedicalhall2016@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Delivery agent check
+    function isDeliveryAgent() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/delivery_agents/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- Users & Addresses Collection ---
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && incoming().uid == request.auth.uid && incoming().role in ['customer'];
+      allow update: if (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'addresses'])) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // --- Medicines Catalog & Inventory ---
+    match /medicines/{medicineId} {
+      // Anyone can browse medicines
+      allow read: if true;
+      // Only pharmacist admin can manage stock, prices, or add new medicines
+      allow write: if isAdmin();
+    }
+
+    // --- Orders Collection ---
+    match /orders/{orderId} {
+      // Customers can read only their own orders; Admin and assigned delivery agent can read
+      allow get: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.assignedDeliveryAgent.phone == request.auth.token.phone_number ||
+        isAdmin()
+      );
+
+      allow list: if isSignedIn() && (
+        isAdmin() ||
+        resource.data.customerId == request.auth.uid
+      );
+
+      // Customer can create an order with their own UID
+      allow create: if isSignedIn() && incoming().customerId == request.auth.uid && incoming().totalAmount is number && incoming().totalAmount >= 0;
+
+      // Customer can cancel order before dispatch; Delivery rider can update status; Admin can update anything
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (
+          // Customer cancel action before dispatch
+          existing().customerId == request.auth.uid &&
+          (existing().status in ['Order Placed', 'Under Review']) &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'statusHistory']) &&
+          incoming().status == 'Cancelled'
+        ) ||
+        (
+          // Delivery agent status update
+          isDeliveryAgent() &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt', 'statusHistory']) &&
+          incoming().status in ['Out for Delivery', 'Delivered']
+        )
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // --- Prescriptions Collection ---
+    match /prescriptions/{prescriptionId} {
+      allow get: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.customerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().customerId == request.auth.uid;
+      // Only pharmacist admin can verify or reject prescriptions
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- Admin & Delivery verification collections ---
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable through backend service account
+    }
+
+    match /delivery_agents/{agentId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
