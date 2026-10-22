@@ -1,0 +1,15 @@
+
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "MADHAV MEDICAL HALL",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "MADHAV MEDICAL",
+  "start_url": "/",
+  "theme_color": "#087443",
+  "id": "madhav-medical-hall",
+  "description": "MADHAV MEDICAL HALL - Medicine Product Catalog and WhatsApp Inquiry",
+  "lang": "en"
+}
