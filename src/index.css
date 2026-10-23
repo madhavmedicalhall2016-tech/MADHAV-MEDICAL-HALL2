@@ -1,38 +1,49 @@
-@import "tailwindcss";
+/* Global mobile responsive fix */
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-    font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
-  }
+* {
+  box-sizing: border-box;
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+html {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: clip;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: clip;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Prevent accidental horizontal overflow */
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
 }
 
-/* Print styling for invoice receipt */
-@media print {
-  header, footer, nav, button, .no-print {
-    display: none !important;
-  }
+/* Mobile screen */
+
+@media (max-width: 768px) {
   body {
-    background: white !important;
-    color: black !important;
+    font-size: 14px;
+  }
+
+  #root {
+    overflow-x: clip;
   }
 }
